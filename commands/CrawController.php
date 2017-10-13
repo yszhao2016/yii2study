@@ -6,7 +6,7 @@
  */
 
 namespace app\commands;
-
+use Yii;
 use yii\console\Controller;
 
 /**
@@ -25,7 +25,10 @@ class CrawController extends Controller
      */
     public function actionIndex($message = 'hello world')
     {
-        echo $message . "\n";
+        $sql = "select * from fund_info";
+//        echo $sql;
+        $data = Yii::$app->db->createCommand($sql)->queryAll();
+        print_r($data);
     }
     
     

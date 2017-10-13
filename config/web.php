@@ -16,17 +16,7 @@ $config = [
 //            'basePath' => __DIR__ ."/..". '/assets/',
 //        ],
         
-//       'module'=>[
-//    		'user' => [
-//          		'class' => 'dektrium\user\Module',
-//          		'confirmWithin' => 21600,
-//          		'cost' => 12,
-//           		'admins' => ['admin']
-//       		],
-//		],
-
-
-	
+        
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
@@ -58,17 +48,15 @@ $config = [
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-//            'rules' => [
-//                '<_c:\w+>/<_a:\w+>' => '<_c>/<_a>',
-//            ],
+            'rules' => [
+                '<_c:\w+>/<_a:\w+>' => '<_c>/<_a>',
+            ],
         ],
-//        'urlManager' => array(
-//                    'urlFormat' => 'path',
-//                    'showScriptName' => false,
-//                    'rules' => array(
-//                        '<_c:\w+>/<_a:\w+>' => '<_c>/<_a>',
-//                    ),
-//                ),
+    ],
+    'modules'=>[
+        'admin' => [
+            'class' => 'app\modules\admin\Module',
+        ],
     ],
     'params' => $params,
 ];
