@@ -4,6 +4,7 @@ namespace app\commands;
 use Yii;
 use yii\console\Controller;
 use app\models\FundInfo;
+use app\models\DayData;
 use \yii\data\Pagination;
 /**
  * Description of crawFundData
@@ -18,9 +19,27 @@ class FundcrawController extends Controller {
     public function actionIndex()
     {
         $data = FundInfo::find()->select(['id','num'])->asArray()->all();
-        $url_arr = $this->actionGeturl($data);
-        foreach($url_arr as $url){
-            $this->GetData($url);
+
+        foreach($data  as $v){
+            $url = $this->Geturl($v);
+            $data = $this->GetData($url);
+//            print_r($data);
+//            echo "\n\n";
+            $model = new DayData;
+            $model->num =  $v['num'];
+            $model->near_value = $data['value'];
+            $model->date = date("Y-m-d");
+            $model->save();
+            $condition = "num={$v['num']} and date=".date("Y-m-d", strtotime("-1 days")); 
+            $preday_model = DayData::find()->where($condition)->one();
+            print_r($preday_model );
+            echo "\n\n";
+            
+            if($preday_model){
+                $preday_model->real_value = $v['pre_value'];
+                $preday_model->save();
+            }
+            
         }
 
         
@@ -32,13 +51,10 @@ class FundcrawController extends Controller {
      * @param type $data
      * @return $array   返回url
      */
-    public function actionGeturl($data)
+    public function Geturl($value)
     {
-        $url=array();
-        foreach ($data as $value){
-            $url[] = 'http://fund.eastmoney.com/'.$value['num'].".html";
-        }
-        print_r($url);
+   
+        $url = 'http://fund.eastmoney.com/'.$value['num'].".html";
         return $url;
     }
     
@@ -51,11 +67,14 @@ class FundcrawController extends Controller {
         $str_data = $this->get_html($url);
         $str = $this->MatchStr_once('/<div class="fundInfoItem">(.*?)<\/table>/is',$str_data);
         $str_value = $this->MatchStr_once('/id="gz_gszzl">(.*?)<\/span>/',$str);
-        $value= floatval(preg_replace('/[+|%]/','',$str_value)); 
+        $data['value']= floatval(preg_replace('/[+|%]/','',$str_value)); 
+//        echo $value."\t";  
+        
         $pre_value = $this->MatchStr_once('/class="dataItem02">(.*?)<\/dd>/',$str);
         $pre_value = $this->MatchStr_once('/ui-font-middle.*?">(.*?)</',$pre_value);
-        $pre_value = floatval(preg_replace('/[+|%]/','',$pre_value));
-        echo $pre_value."\n";
+        $data['pre_value'] = floatval(preg_replace('/[+|%]/','',$pre_value));
+//        echo $pre_value."\n";
+        return $data;
         
         
     }
