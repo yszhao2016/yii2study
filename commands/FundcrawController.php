@@ -23,20 +23,29 @@ class FundcrawController extends Controller {
         foreach($data  as $v){
             $url = $this->Geturl($v);
             $data = $this->GetData($url);
-//            print_r($data);
-//            echo "\n\n";
-            $model = new DayData;
+            //获取当前天 日期
+            $today_date = date("Y-m-d");
+            echo $data['value']."\t".$data['pre_value']."\n";
+            //查询当天是否有数据
+            $model = DayData::find()->where(['num'=>$v['num']])->andwhere(['date'=>$today_date])->one();
+            if(!$model){
+                $model = new DayData;
+            } 
             $model->num =  $v['num'];
             $model->near_value = $data['value'];
-            $model->date = date("Y-m-d");
+            $model->date = $today_date;
             $model->save();
-            $condition = "num={$v['num']} and date=".date("Y-m-d", strtotime("-1 days")); 
-            $preday_model = DayData::find()->where($condition)->one();
-            print_r($preday_model );
-            echo "\n\n";
             
+            
+            
+            //查询前一天 数据是否存在 
+            $predate = date("Y-m-d", strtotime("-1 days"));
+            
+            $preday_model = DayData::find()->where(['num'=>$v['num']])->andwhere(['date'=>$predate])->one();
+            
+            //如果前一天数据存在更新 前一天真实数据
             if($preday_model){
-                $preday_model->real_value = $v['pre_value'];
+                $preday_model->real_value = $data['pre_value'];
                 $preday_model->save();
             }
             
