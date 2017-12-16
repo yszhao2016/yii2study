@@ -17,6 +17,5 @@ class FundcrawController extends Controller {
     {
         $sql = "select * from fund_info";
         $data = Yii::$app->db->createCommand($sql)->queryAll();
-        print_r($data);
     }
 }
